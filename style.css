@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  background-color: #f7f7f7;
+}
+
+h1 {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+#results {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.word-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.phonetics {
+  margin: 5px 0;
+}
+
+.definition {
+  margin: 10px 0;
+}
+
+.synonyms {
+  font-style: italic;
+}
+
+.audio-button {
+  margin-left: 10px;
+  cursor: pointer;
+}
