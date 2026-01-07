@@ -1,85 +1,105 @@
-const form = document.getElementById('search-form');
-const input = document.getElementById('word-input');
-const resultsDiv = document.getElementById('results');
+// DOM Elements
+const form = document.getElementById("word-form");
+const input = document.getElementById("word-input");
+const resultsDiv = document.getElementById("results");
+const errorMessage = document.getElementById("error-message");
 
-form.addEventListener('submit', handleFormSubmit);
-
-async function handleFormSubmit(event) {
+// Event Listener: Form Submission
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const word = input.value.trim();
-  resultsDiv.innerHTML = ''; // Clear previous results
+  resultsDiv.innerHTML = "";
+  clearError();
 
   if (!word) {
-    resultsDiv.textContent = 'Please enter a word.';
+    displayError("Please enter a word.");
     return;
   }
 
   try {
-    const data = await fetchWordData(word);
+    const data = await fetchWord(word);
     displayWordData(data);
   } catch (error) {
-    resultsDiv.textContent = 'Word not found or API error.';
-    console.error(error);
+    displayError(error.message);
   }
-}
 
-async function fetchWordData(word) {
+  input.value = "";
+});
+
+// ==============================
+// Fetch Data from Free Dictionary API
+// ==============================
+async function fetchWord(word) {
   const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+
   if (!response.ok) {
-    throw new Error('API request failed');
+    throw new Error("Word not found. Please try another.");
   }
-  return response.json();
+
+  const data = await response.json();
+  return data[0]; // Take the first entry
 }
 
+// ==============================
+// Display Word Data
+// ==============================
 function displayWordData(data) {
-  const wordObj = data[0];
+  const { word, phonetics, meanings } = data;
 
-  // Word title
-  const wordTitle = document.createElement('div');
-  wordTitle.className = 'word-title';
-  wordTitle.textContent = wordObj.word;
+  // Word Title
+  const wordTitle = document.createElement("h3");
+  wordTitle.textContent = word;
   resultsDiv.appendChild(wordTitle);
 
-  // Phonetics and audio
-  if (wordObj.phonetics && wordObj.phonetics.length > 0) {
-    const phoneticsDiv = document.createElement('div');
-    phoneticsDiv.className = 'phonetics';
-    phoneticsDiv.textContent = wordObj.phonetics[0].text || '';
-    if (wordObj.phonetics[0].audio) {
-      const audioBtn = document.createElement('button');
-      audioBtn.textContent = '🔊';
-      audioBtn.className = 'audio-button';
-      audioBtn.addEventListener('click', () => {
-        new Audio(wordObj.phonetics[0].audio).play();
-      });
-      phoneticsDiv.appendChild(audioBtn);
+  // Pronunciation
+  if (phonetics && phonetics.length > 0) {
+    const phoneticText = phonetics.find(p => p.text)?.text || "";
+    const audioSrc = phonetics.find(p => p.audio)?.audio || "";
+
+    if (phoneticText) {
+      const phoneticPara = document.createElement("p");
+      phoneticPara.textContent = `Pronunciation: ${phoneticText}`;
+      resultsDiv.appendChild(phoneticPara);
     }
-    resultsDiv.appendChild(phoneticsDiv);
+
+    if (audioSrc) {
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = audioSrc;
+      resultsDiv.appendChild(audio);
+    }
   }
 
-  // Meanings
-  wordObj.meanings.forEach(meaning => {
-    const partSpeech = document.createElement('div');
-    partSpeech.textContent = `Part of Speech: ${meaning.partOfSpeech}`;
-    resultsDiv.appendChild(partSpeech);
+  // Definitions
+  meanings.forEach(meaning => {
+    const pos = document.createElement("h4");
+    pos.textContent = `Part of Speech: ${meaning.partOfSpeech}`;
+    resultsDiv.appendChild(pos);
 
     meaning.definitions.forEach(def => {
-      const defDiv = document.createElement('div');
-      defDiv.className = 'definition';
-      defDiv.textContent = `Definition: ${def.definition}`;
+      const defDiv = document.createElement("div");
+      defDiv.classList.add("definition");
+      defDiv.innerHTML = `<strong>Definition:</strong> ${def.definition}`;
       if (def.example) {
-        const exampleDiv = document.createElement('div');
-        exampleDiv.textContent = `Example: ${def.example}`;
-        defDiv.appendChild(exampleDiv);
+        defDiv.innerHTML += `<br><em>Example:</em> ${def.example}`;
+      }
+      if (def.synonyms && def.synonyms.length > 0) {
+        defDiv.innerHTML += `<br><strong>Synonyms:</strong> ${def.synonyms.join(", ")}`;
       }
       resultsDiv.appendChild(defDiv);
     });
-
-    if (meaning.synonyms && meaning.synonyms.length > 0) {
-      const synDiv = document.createElement('div');
-      synDiv.className = 'synonyms';
-      synDiv.textContent = `Synonyms: ${meaning.synonyms.join(', ')}`;
-      resultsDiv.appendChild(synDiv);
-    }
   });
+}
+
+// ==============================
+// Error Handling
+// ==============================
+function displayError(message) {
+  errorMessage.textContent = message;
+  errorMessage.classList.remove("hidden");
+}
+
+function clearError() {
+  errorMessage.textContent = "";
+  errorMessage.classList.add("hidden");
 }

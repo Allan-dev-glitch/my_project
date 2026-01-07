@@ -7,15 +7,26 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Wordly Dictionary</h1>
+  <header>
+    <h1>Wordly Dictionary</h1>
+  </header>
 
-  <form id="search-form">
-    <input type="text" id="word-input" placeholder="Enter a word" aria-label="Word input">
-    <button type="submit">Search</button>
-  </form>
+  <!-- Search Form -->
+  <section id="search-section">
+    <form id="word-form" aria-label="Word search form">
+      <input type="text" id="word-input" placeholder="Enter a word" aria-label="Word input" />
+      <button type="submit">Search</button>
+    </form>
+    <div id="error-message" class="hidden"></div>
+  </section>
 
-  <div id="results"></div>
+  <!-- Results Section -->
+  <section id="results-section">
+    <h2>Word Details</h2>
+    <div id="results"></div>
+  </section>
 
+  <!-- JavaScript -->
   <script src="index.js"></script>
 </body>
 </html>
